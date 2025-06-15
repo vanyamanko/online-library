@@ -9,6 +9,7 @@ import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.service.AuthenticationService;
 import com.example.auth_service.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,7 +47,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
@@ -62,13 +63,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         user.setLastActive(Instant.now());
         userRepository.save(user);
-        
+
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
-        
+
         return AuthResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
@@ -98,6 +99,41 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthResponse.builder()
                 .token(jwtToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    @Override
+    public AuthResponse refreshAccessToken(String refreshToken) {
+        if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
+            throw new AccessDeniedException("Invalid token format");
+        }
+
+        String token = refreshToken.substring(7);
+
+        if (token == null) {
+            throw new AccessDeniedException("Refresh token is missing");
+        }
+
+        final String username = jwtService.extractUsername(token);
+        if (username == null) {
+            throw new AccessDeniedException("Invalid refresh token");
+        }
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
+
+        if (!jwtService.isTokenValid(token, user)) {
+            throw new AccessDeniedException("Invalid or expired refresh token");
+        }
+
+        String accessToken = jwtService.generateToken(user);
+
+        user.setLastActive(Instant.now());
+        userRepository.save(user);
+
+        return AuthResponse.builder()
+                .token(accessToken)
+                .refreshToken(token)
                 .build();
     }
 } 
