@@ -1,8 +1,6 @@
 package com.example.auth_service.controller;
 
-import com.example.auth_service.dto.AuthResponse;
-import com.example.auth_service.dto.SignInRequest;
-import com.example.auth_service.dto.SignUpRequest;
+import com.example.auth_service.dto.*;
 import com.example.auth_service.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,5 +31,10 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestHeader(value = "Authorization") String refreshToken) {
         return ResponseEntity.ok(authenticationService.refreshAccessToken(refreshToken));
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<ValidationResponse> validateToken(@RequestBody @Valid TokenValidationRequest request) {
+        return ResponseEntity.ok(authenticationService.validateToken(request.getToken()));
     }
 }

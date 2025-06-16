@@ -3,6 +3,7 @@ package com.example.auth_service.service.impl;
 import com.example.auth_service.dto.AuthResponse;
 import com.example.auth_service.dto.SignInRequest;
 import com.example.auth_service.dto.SignUpRequest;
+import com.example.auth_service.dto.ValidationResponse;
 import com.example.auth_service.model.Role;
 import com.example.auth_service.model.User;
 import com.example.auth_service.repository.UserRepository;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserDetailsService userDetailsService;
 
     public AuthResponse signup(SignUpRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -135,5 +138,62 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .token(accessToken)
                 .refreshToken(token)
                 .build();
+    }
+
+    @Override
+    public ValidationResponse validateToken(String token) {
+        try {
+            if (token == null || token.isEmpty()) {
+                return ValidationResponse.builder()
+                        .successfully(false)
+                        .role(null)
+                        .build();
+            }
+
+            if (token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+
+            String username = jwtService.extractUsername(token);
+            if (username == null) {
+                return ValidationResponse.builder()
+                        .successfully(false)
+                        .role(null)
+                        .build();
+            }
+
+            User user;
+            try {
+                user = (User) userDetailsService.loadUserByUsername(username);
+            } catch (Exception e) {
+                return ValidationResponse.builder()
+                        .successfully(false)
+                        .role(null)
+                        .build();
+            }
+
+            boolean isValid = jwtService.isTokenValid(token, user);
+            
+            if (!isValid) {
+                return ValidationResponse.builder()
+                        .successfully(false)
+                        .role(null)
+                        .build();
+            }
+
+            user.setLastActive(Instant.now());
+            userRepository.save(user);
+            
+            return ValidationResponse.builder()
+                    .role(user.getRole())
+                    .successfully(true)
+                    .build();
+
+        } catch (Exception e) {
+            return ValidationResponse.builder()
+                    .successfully(false)
+                    .role(null)
+                    .build();
+        }
     }
 } 
