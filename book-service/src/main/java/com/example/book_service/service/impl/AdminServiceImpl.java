@@ -5,19 +5,20 @@ import com.example.book_service.dto.UpdateBookRequest;
 import com.example.book_service.model.Book;
 import com.example.book_service.repository.BookRepository;
 import com.example.book_service.service.AdminService;
-import com.example.book_service.service.ValidationService;
+import com.example.book_service.component.AuthComponent;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
     private final BookRepository bookRepository;
-    private final ValidationService validationService;
+    private final AuthComponent validationService;
 
     private void checkAdminAccess(String token) {
         if (!validationService.validateAdminAccess(token)) {
@@ -37,6 +38,7 @@ public class AdminServiceImpl implements AdminService {
     public Book createBook(String token, CreateBookRequest createBookRequest) {
         checkAdminAccess(token);
         Book book = Book.builder()
+                .id("book_" + UUID.randomUUID().toString())
                 .title(createBookRequest.getTitle())
                 .authors(createBookRequest.getAuthors())
                 .publisher(createBookRequest.getPublisher())

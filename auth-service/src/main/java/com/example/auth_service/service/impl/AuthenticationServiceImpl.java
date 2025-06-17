@@ -147,6 +147,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return ValidationResponse.builder()
                         .successfully(false)
                         .role(null)
+                        .userId(null)
                         .build();
             }
 
@@ -159,6 +160,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return ValidationResponse.builder()
                         .successfully(false)
                         .role(null)
+                        .userId(null)
                         .build();
             }
 
@@ -169,6 +171,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return ValidationResponse.builder()
                         .successfully(false)
                         .role(null)
+                        .userId(null)
                         .build();
             }
 
@@ -178,6 +181,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return ValidationResponse.builder()
                         .successfully(false)
                         .role(null)
+                        .userId(null)
                         .build();
             }
 
@@ -186,12 +190,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             
             return ValidationResponse.builder()
                     .role(user.getRole())
+                    .userId(user.getId())
                     .successfully(true)
                     .build();
 
         } catch (Exception e) {
             return ValidationResponse.builder()
                     .successfully(false)
+                    .userId(null)
                     .role(null)
                     .build();
         }
