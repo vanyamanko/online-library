@@ -1,23 +1,95 @@
 package com.example.book_service.service.impl;
 
+import com.example.book_service.dto.CreateBookRequest;
+import com.example.book_service.dto.UpdateBookRequest;
+import com.example.book_service.model.Book;
 import com.example.book_service.repository.BookRepository;
 import com.example.book_service.service.AdminService;
 import com.example.book_service.service.ValidationService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
-    private final ValidationService validationService;
     private final BookRepository bookRepository;
+    private final ValidationService validationService;
 
-    public void deleteBookById(String id, String token) {
+    private void checkAdminAccess(String token) {
         if (!validationService.validateAdminAccess(token)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin access required");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
+    }
+
+    @Override
+    @Transactional
+    public void deleteBookById(String id, String token) {
+        checkAdminAccess(token);
         bookRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public Book createBook(String token, CreateBookRequest createBookRequest) {
+        checkAdminAccess(token);
+        Book book = Book.builder()
+                .title(createBookRequest.getTitle())
+                .authors(createBookRequest.getAuthors())
+                .publisher(createBookRequest.getPublisher())
+                .publishedDate(createBookRequest.getPublishedDate())
+                .description(createBookRequest.getDescription())
+                .pageCount(createBookRequest.getPageCount())
+                .genres(createBookRequest.getGenres())
+                .coverUrl(createBookRequest.getCoverUrl())
+                .averageRating(0.0f)
+                .reviewsCount(0)
+                .build();
+
+        return bookRepository.save(book);
+    }
+
+    @Override
+    @Transactional
+    public Book updateBookById(String token, String id, UpdateBookRequest updateBookRequest) {
+        checkAdminAccess(token);
+        Book existingBook = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: " + id));
+
+        if (updateBookRequest.getTitle() != null) {
+            existingBook.setTitle(updateBookRequest.getTitle());
+        }
+        if (updateBookRequest.getAuthors() != null) {
+            existingBook.setAuthors(updateBookRequest.getAuthors());
+        }
+        if (updateBookRequest.getPublisher() != null) {
+            existingBook.setPublisher(updateBookRequest.getPublisher());
+        }
+        if (updateBookRequest.getPublishedDate() != null) {
+            existingBook.setPublishedDate(updateBookRequest.getPublishedDate());
+        }
+        if (updateBookRequest.getDescription() != null) {
+            existingBook.setDescription(updateBookRequest.getDescription());
+        }
+        if (updateBookRequest.getPageCount() != null) {
+            existingBook.setPageCount(updateBookRequest.getPageCount());
+        }
+        if (updateBookRequest.getGenres() != null) {
+            existingBook.setGenres(updateBookRequest.getGenres());
+        }
+        if (updateBookRequest.getCoverUrl() != null) {
+            existingBook.setCoverUrl(updateBookRequest.getCoverUrl());
+        }
+        if (updateBookRequest.getAverageRating() != null) {
+            existingBook.setAverageRating(updateBookRequest.getAverageRating());
+        }
+        if (updateBookRequest.getReviewsCount() != null) {
+            existingBook.setReviewsCount(updateBookRequest.getReviewsCount());
+        }
+
+        return bookRepository.save(existingBook);
     }
 }

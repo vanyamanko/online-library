@@ -1,35 +1,25 @@
 package com.example.book_service.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Collections;
 import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateBookRequest {
-    @NotBlank(message = "Title is required")
+public class UpdateBookRequest {
     private String title;
-
-    @Builder.Default
-    private List<String> authors = Collections.emptyList();
-
+    private List<String> authors;
     private String publisher;
-
     private String publishedDate;
-
     private String description;
-
     private Integer pageCount;
-
-    @Builder.Default
-    private List<String> genres = Collections.emptyList();
-
+    private List<String> genres;
     private String coverUrl;
-}
+    private Float averageRating;
+    private Integer reviewsCount;
+} 
