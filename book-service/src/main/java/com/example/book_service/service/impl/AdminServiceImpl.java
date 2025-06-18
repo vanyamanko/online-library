@@ -10,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 
@@ -27,14 +26,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @Transactional
     public void deleteBookById(String id, String token) {
         checkAdminAccess(token);
         bookRepository.deleteById(id);
     }
 
     @Override
-    @Transactional
     public Book createBook(String token, CreateBookRequest createBookRequest) {
         checkAdminAccess(token);
         Book book = Book.builder()
@@ -47,7 +44,7 @@ public class AdminServiceImpl implements AdminService {
                 .pageCount(createBookRequest.getPageCount())
                 .genres(createBookRequest.getGenres())
                 .coverUrl(createBookRequest.getCoverUrl())
-                .averageRating(0.0f)
+                .rating(0.0f)
                 .reviewsCount(0)
                 .build();
 
@@ -55,7 +52,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @Transactional
     public Book updateBookById(String token, String id, UpdateBookRequest updateBookRequest) {
         checkAdminAccess(token);
         Book existingBook = bookRepository.findById(id)
@@ -86,7 +82,7 @@ public class AdminServiceImpl implements AdminService {
             existingBook.setCoverUrl(updateBookRequest.getCoverUrl());
         }
         if (updateBookRequest.getAverageRating() != null) {
-            existingBook.setAverageRating(updateBookRequest.getAverageRating());
+            existingBook.setRating(updateBookRequest.getAverageRating());
         }
         if (updateBookRequest.getReviewsCount() != null) {
             existingBook.setReviewsCount(updateBookRequest.getReviewsCount());

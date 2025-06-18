@@ -30,15 +30,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserDetailsService userDetailsService;
 
     public AuthResponse signup(SignUpRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-
         User user = User.builder()
-                .id("user_" + UUID.randomUUID().toString())
+                .id("user_" + UUID.randomUUID())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -90,7 +83,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new RuntimeException("Access denied. Admin role required.");
+            throw new AccessDeniedException("Access denied. Admin role required.");
         }
 
         user.setLastActive(Instant.now());

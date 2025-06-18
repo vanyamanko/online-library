@@ -2,6 +2,7 @@ package com.example.review_service.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -23,6 +24,12 @@ public class ExceptionsHandler {
         return new ErrorResponse(ex.getMessage());
     }
 
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ErrorResponse handleConflictException(DataIntegrityViolationException ex) {
+        log.error("Conflict: {}", ex.getMessage());
+        return new ErrorResponse("409 error, duplicate in db");
+    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({HttpClientErrorException.class, HttpMessageNotReadableException.class,
@@ -46,5 +53,4 @@ public class ExceptionsHandler {
         log.error("Not found: {}", ex.getMessage());
         return new ErrorResponse("404 error, NOT FOUND");
     }
-
 }

@@ -2,7 +2,9 @@ package com.example.review_service.service.impl;
 
 import com.example.review_service.component.AuthComponent;
 import com.example.review_service.dto.CreateReviewRequest;
+import com.example.review_service.dto.UpdateBookRatingRequest;
 import com.example.review_service.dto.ValidationResponse;
+import com.example.review_service.kafka.KafkaProduser;
 import com.example.review_service.model.Review;
 import com.example.review_service.repository.ReviewRepository;
 import com.example.review_service.service.ReviewService;
@@ -22,6 +24,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final AuthComponent authComponent;
+    private final KafkaProduser kafkaProduser;
 
     public Review createReview(String token, CreateReviewRequest createReviewRequest) {
         ValidationResponse response = authComponent.validateToken(token);
@@ -39,8 +42,13 @@ public class ReviewServiceImpl implements ReviewService {
                 .createdAt(Instant.now().toString())
                 .userId(response.getUserId())
                 .build();
+        UpdateBookRatingRequest updateBookRatingRequest = UpdateBookRatingRequest.builder()
+                .bookId(review.getBookId())
+                .rating(review.getRating())
+                .build();
+
+        kafkaProduser.sendToBookServiceAboutNewRating(updateBookRatingRequest);
 
         return reviewRepository.save(review);
     }
-
 }

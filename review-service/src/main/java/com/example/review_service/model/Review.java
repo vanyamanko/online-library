@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +21,7 @@ public class Review {
 
     private String bookId;
 
+    @Column(unique = true)
     private String userId;
 
     private Integer rating;

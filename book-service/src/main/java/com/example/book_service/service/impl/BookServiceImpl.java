@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,4 +25,18 @@ public class BookServiceImpl implements BookService {
     public List<Book> getAllByTitle(String title) {
         return bookRepository.findByTitle(title);
     }
-} 
+
+    public void updateRating(String id, Integer rating) {
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        if (optionalBook.isPresent()) {
+            Book book = optionalBook.get();
+            Integer oldReviewsCount = book.getReviewsCount();
+            Float newRating = (book.getRating() * oldReviewsCount + rating) / (oldReviewsCount + 1);
+            book.setRating(newRating);
+            book.setReviewsCount(oldReviewsCount + 1);
+            bookRepository.save(book);
+        } else {
+            // кидаем кавке чтобы все review удаляла связанное с этим id
+        }
+    }
+}

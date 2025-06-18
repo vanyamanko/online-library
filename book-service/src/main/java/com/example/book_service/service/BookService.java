@@ -10,4 +10,6 @@ public interface BookService {
     public List<Book> getAllByAuthor(String author);
 
     public List<Book> getAllByTitle(String title);
+
+    public void updateRating(String id, Integer rating);
 }

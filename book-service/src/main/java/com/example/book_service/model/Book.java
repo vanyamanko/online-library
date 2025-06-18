@@ -33,7 +33,7 @@ public class Book {
 
     private String coverUrl;
 
-    private Float averageRating;
+    private Float rating;
 
     private Integer reviewsCount;
 }

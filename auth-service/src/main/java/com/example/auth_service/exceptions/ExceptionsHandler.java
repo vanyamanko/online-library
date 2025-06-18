@@ -2,6 +2,7 @@ package com.example.auth_service.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,6 +24,13 @@ public class ExceptionsHandler {
     public ErrorResponse handleInternalServerError(RuntimeException ex) {
         log.error("Internal server error: {}", ex.getMessage());
         return new ErrorResponse(ex.getMessage());
+    }
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ErrorResponse handleConflictException(DataIntegrityViolationException ex) {
+        log.error("Conflict: {}", ex.getMessage());
+        return new ErrorResponse("409 error, duplicate in db");
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
