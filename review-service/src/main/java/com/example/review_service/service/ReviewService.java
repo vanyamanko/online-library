@@ -5,4 +5,5 @@ import com.example.review_service.model.Review;
 
 public interface ReviewService {
     public Review createReview(String token, CreateReviewRequest createReviewRequest);
+    public void deleteByBookId(String bookId);
 }

@@ -1,5 +1,6 @@
 package com.example.book_service.service.impl;
 
+import com.example.book_service.kafka.KafkaProduser;
 import com.example.book_service.model.Book;
 import com.example.book_service.repository.BookRepository;
 import com.example.book_service.service.BookService;
@@ -13,6 +14,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
+    private final KafkaProduser kafkaProduser;
 
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
@@ -36,7 +38,7 @@ public class BookServiceImpl implements BookService {
             book.setReviewsCount(oldReviewsCount + 1);
             bookRepository.save(book);
         } else {
-            // кидаем кавке чтобы все review удаляла связанное с этим id
+           kafkaProduser.deleteReviewByBookId(id);
         }
     }
 }

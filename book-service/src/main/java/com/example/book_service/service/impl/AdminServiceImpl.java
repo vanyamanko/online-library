@@ -2,6 +2,7 @@ package com.example.book_service.service.impl;
 
 import com.example.book_service.dto.CreateBookRequest;
 import com.example.book_service.dto.UpdateBookRequest;
+import com.example.book_service.kafka.KafkaProduser;
 import com.example.book_service.model.Book;
 import com.example.book_service.repository.BookRepository;
 import com.example.book_service.service.AdminService;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class AdminServiceImpl implements AdminService {
     private final BookRepository bookRepository;
     private final AuthComponent validationService;
+    private final KafkaProduser kafkaProduser;
 
     private void checkAdminAccess(String token) {
         if (!validationService.validateAdminAccess(token)) {
@@ -29,6 +31,7 @@ public class AdminServiceImpl implements AdminService {
     public void deleteBookById(String id, String token) {
         checkAdminAccess(token);
         bookRepository.deleteById(id);
+        kafkaProduser.deleteReviewByBookId(id);
     }
 
     @Override

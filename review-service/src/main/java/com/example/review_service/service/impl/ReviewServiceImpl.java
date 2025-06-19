@@ -8,6 +8,7 @@ import com.example.review_service.kafka.KafkaProduser;
 import com.example.review_service.model.Review;
 import com.example.review_service.repository.ReviewRepository;
 import com.example.review_service.service.ReviewService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -50,5 +51,10 @@ public class ReviewServiceImpl implements ReviewService {
         kafkaProduser.sendToBookServiceAboutNewRating(updateBookRatingRequest);
 
         return reviewRepository.save(review);
+    }
+
+    @Transactional
+    public void deleteByBookId(String bookId) {
+        reviewRepository.deleteByBookId(bookId);
     }
 }
