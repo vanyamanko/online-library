@@ -21,11 +21,11 @@ public class Review {
 
     private String bookId;
 
-    @Column(unique = true)
     private String userId;
 
     private Integer rating;
 
+    @Column(length = 10000)
     private String text;
 
     private Integer likes;
@@ -34,6 +34,16 @@ public class Review {
 
     private String createdAt;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+            mappedBy = "review",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "review",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ReviewReaction> reactions = new ArrayList<>();
 }
