@@ -17,5 +17,6 @@ public class CreateReviewRequest {
     private Integer rating;
 
     @NotBlank(message = "Text is required")
+    @Size(min = 1, max = 10000, message = "Text must be between 1 and 1000 characters")
     private String text;
 }

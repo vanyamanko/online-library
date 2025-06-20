@@ -24,7 +24,8 @@ public class Comment {
 
     private String userId;
 
+    @Column(length = 1000)
     private String text;
 
-    private Instant createdAt;
+    private String createdAt;
 }

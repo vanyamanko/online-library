@@ -1,7 +1,6 @@
 package com.example.review_service.controller;
 
 import com.example.review_service.dto.CreateReviewRequest;
-import com.example.review_service.kafka.KafkaProduser;
 import com.example.review_service.model.Review;
 import com.example.review_service.model.ReviewReaction;
 import com.example.review_service.service.ReviewService;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
-    private final KafkaProduser kafkaProduser;
 
     @PostMapping("/create")
     public ResponseEntity<Review> createReview(

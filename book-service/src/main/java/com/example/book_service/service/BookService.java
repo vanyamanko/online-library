@@ -5,11 +5,11 @@ import com.example.book_service.model.Book;
 import java.util.List;
 
 public interface BookService {
-    public List<Book> getAllBooks();
+    List<Book> getAllBooks();
 
-    public List<Book> getAllByAuthor(String author);
+    List<Book> getAllByAuthor(String author);
 
-    public List<Book> getAllByTitle(String title);
+    List<Book> getAllByTitle(String title);
 
-    public void updateRating(String id, Integer rating);
+    void updateRating(String id, Integer rating);
 }
