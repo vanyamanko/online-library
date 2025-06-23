@@ -4,6 +4,7 @@ import com.example.auth_service.dto.*;
 import com.example.auth_service.service.AuthenticationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,5 +32,11 @@ public class AuthController {
     @PostMapping("/validate")
     public ResponseEntity<ValidationResponse> validateToken(@RequestBody @Valid TokenValidationRequest request) {
         return ResponseEntity.ok(authenticationService.validateToken(request.getToken()));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> deleteUserById(@RequestHeader("Authorization") String token, @PathVariable String id) {
+        authenticationService.deleteUserById(token, id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

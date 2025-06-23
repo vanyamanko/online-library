@@ -10,14 +10,17 @@ import com.example.auth_service.repository.UserRepository;
 import com.example.auth_service.service.AuthenticationService;
 import com.example.auth_service.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -80,10 +83,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String token = refreshToken.substring(7);
 
-        if (token == null) {
-            throw new AccessDeniedException("Refresh token is missing");
-        }
-
         final String username = jwtService.extractUsername(token);
         if (username == null) {
             throw new AccessDeniedException("Invalid refresh token");
@@ -143,7 +142,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
 
             boolean isValid = jwtService.isTokenValid(token, user);
-            
+
             if (!isValid) {
                 return ValidationResponse.builder()
                         .successfully(false)
@@ -154,7 +153,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
             user.setLastActive(Instant.now());
             userRepository.save(user);
-            
+
             return ValidationResponse.builder()
                     .role(user.getRole())
                     .userId(user.getId())
@@ -169,4 +168,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .build();
         }
     }
+
+    public void deleteUserById(String token, String id) {
+        ValidationResponse response = validateToken(token);
+        if (!response.isSuccessfully() || (response.getRole() != Role.ADMIN && !Objects.equals(response.getUserId(), id))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+        userRepository.deleteById(id);
+    }
+
 } 

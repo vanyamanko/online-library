@@ -10,4 +10,5 @@ public interface AuthenticationService {
     AuthResponse signin(SignInRequest request);
     AuthResponse refreshAccessToken(String refreshToken);
     ValidationResponse validateToken(String token);
+    void deleteUserById(String token, String id);
 }
