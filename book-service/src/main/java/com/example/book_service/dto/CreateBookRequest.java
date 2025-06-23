@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -18,7 +18,7 @@ public class CreateBookRequest {
     private String title;
 
     @Builder.Default
-    private List<String> authors = Collections.emptyList();
+    private Set<String> authors = Collections.emptySet();
 
     private String publisher;
 
@@ -29,7 +29,7 @@ public class CreateBookRequest {
     private Integer pageCount;
 
     @Builder.Default
-    private List<String> genres = Collections.emptyList();
+    private Set<String> genres = Collections.emptySet();
 
     private String coverUrl;
 }

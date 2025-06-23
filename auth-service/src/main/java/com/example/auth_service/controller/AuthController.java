@@ -23,11 +23,6 @@ public class AuthController {
         return ResponseEntity.ok(authenticationService.signin(request));
     }
 
-    @PostMapping("/signin/admin")
-    public ResponseEntity<AuthResponse> signinAdmin(@RequestBody @Valid SignInRequest request) {
-        return ResponseEntity.ok(authenticationService.signinAdmin(request));
-    }
-
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestHeader(value = "Authorization") String refreshToken) {
         return ResponseEntity.ok(authenticationService.refreshAccessToken(refreshToken));

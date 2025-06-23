@@ -27,4 +27,14 @@ public class AuthComponent {
                 "ADMIN".equals(response.getRole()) &&
                 response.isSuccessfully();
     }
+
+    public ValidationResponse validateToken(String token) {
+        ObjectNode requestBody = mapper.createObjectNode();
+        requestBody.put("token", token);
+        return restTemplate.postForObject(
+                VALIDATION_URL,
+                requestBody,
+                ValidationResponse.class
+        );
+    }
 }

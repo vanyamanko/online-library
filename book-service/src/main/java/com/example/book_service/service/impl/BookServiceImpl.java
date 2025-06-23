@@ -1,20 +1,30 @@
 package com.example.book_service.service.impl;
 
+import com.example.book_service.component.AuthComponent;
+import com.example.book_service.dto.ValidationResponse;
 import com.example.book_service.kafka.KafkaProduser;
 import com.example.book_service.model.Book;
+import com.example.book_service.model.Personalization;
 import com.example.book_service.repository.BookRepository;
+import com.example.book_service.repository.PersonalizationRepository;
 import com.example.book_service.service.BookService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final KafkaProduser kafkaProduser;
+    private final AuthComponent authComponent;
+    private final PersonalizationRepository personalizationRepository;
 
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
@@ -28,6 +38,7 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findByTitle(title);
     }
 
+    @Transactional
     public void updateRating(String id, Integer rating) {
         Optional<Book> optionalBook = bookRepository.findById(id);
         if (optionalBook.isPresent()) {
@@ -38,7 +49,94 @@ public class BookServiceImpl implements BookService {
             book.setReviewsCount(oldReviewsCount + 1);
             bookRepository.save(book);
         } else {
-           kafkaProduser.deleteReviewByBookId(id);
+            kafkaProduser.deleteReviewByBookId(id);
         }
     }
+
+    @Transactional
+    public void toggleFavorite(String token, String id) {
+        ValidationResponse response = authComponent.validateToken(token);
+        if (!response.isSuccessfully()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: " + id));
+
+        Personalization personalization = personalizationRepository.findById(response.getUserId())
+                .orElseGet(() -> Personalization.builder()
+                        .userId(response.getUserId())
+                        .favorite(new HashSet<>())
+                        .viewHistory(new LinkedHashSet<>())
+                        .build());
+
+        Set<Book> favorites = personalization.getFavorite();
+        if (favorites == null) {
+            favorites = new HashSet<>();
+            personalization.setFavorite(favorites);
+        }
+
+        if (!favorites.remove(book)) {
+            favorites.add(book);
+        }
+
+        personalizationRepository.save(personalization);
+    }
+
+    public Set<Book> getFavoriteOrHistory(String token, PersonalizationCategory p) {
+        ValidationResponse response = authComponent.validateToken(token);
+        if (!response.isSuccessfully()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+        }
+
+        Personalization personalization = personalizationRepository.findById(response.getUserId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Personalization not found"));
+
+        if (p == PersonalizationCategory.FAVORITE) {
+            return personalization.getFavorite();
+        } else if (p == PersonalizationCategory.HISTORY) {
+            return personalization.getViewHistory();
+        } else {
+            throw new IllegalArgumentException("PersonalizationCategory not found!");
+        }
+    }
+
+    @Transactional
+    public Book getBookById(String token, String id) {
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Book not found with id: " + id));
+
+        ValidationResponse response = authComponent.validateToken(token);
+
+        if (response.isSuccessfully()) {
+            Personalization personalization = personalizationRepository.findById(response.getUserId())
+                    .orElseGet(() -> Personalization.builder()
+                            .userId(response.getUserId())
+                            .favorite(new HashSet<>())
+                            .viewHistory(new LinkedHashSet<>())
+                            .build());
+
+            Set<Book> history = personalization.getViewHistory();
+            if (history == null) {
+                history = new LinkedHashSet<>();
+                personalization.setViewHistory(history);
+            }
+
+            Set<Book> updatedHistory = new LinkedHashSet<>(history);
+            updatedHistory.add(book);
+
+            if (updatedHistory.size() > 10) {
+                updatedHistory = updatedHistory.stream()
+                        .skip(updatedHistory.size() - 10)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
+            }
+
+            personalization.setViewHistory(updatedHistory);
+            personalizationRepository.save(personalization);
+        }
+
+        return book;
+    }
+
 }

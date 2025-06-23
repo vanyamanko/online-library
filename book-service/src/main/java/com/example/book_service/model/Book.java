@@ -1,25 +1,27 @@
 package com.example.book_service.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.util.List;
+import lombok.*;
 
-@Data
+import java.util.Set;
+
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table
+@JsonIgnoreProperties({"favoritedBy", "viewedBy"})
 public class Book {
     @Id
     private String id;
 
     private String title;
 
-    private List<String> authors;
+    private Set<String> authors;
 
     private String publisher;
 
@@ -29,11 +31,19 @@ public class Book {
 
     private Integer pageCount;
 
-    private List<String> genres;
+    private Set<String> genres;
 
     private String coverUrl;
 
     private Float rating;
 
     private Integer reviewsCount;
+
+    @ManyToMany(mappedBy = "favorite", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<Personalization> favoritedBy;
+
+    @ManyToMany(mappedBy = "viewHistory", cascade = CascadeType.REMOVE)
+    @JsonIgnore
+    private Set<Personalization> viewedBy;
 }

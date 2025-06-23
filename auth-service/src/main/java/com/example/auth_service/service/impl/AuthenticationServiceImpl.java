@@ -72,32 +72,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    public AuthResponse signinAdmin(SignInRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (user.getRole() != Role.ADMIN) {
-            throw new AccessDeniedException("Access denied. Admin role required.");
-        }
-
-        user.setLastActive(Instant.now());
-        userRepository.save(user);
-
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
     @Override
     public AuthResponse refreshAccessToken(String refreshToken) {
         if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
