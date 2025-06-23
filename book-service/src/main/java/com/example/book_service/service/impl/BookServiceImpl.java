@@ -139,4 +139,14 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
+    public List<Book> findBooksByFilters(String genre, Float minRating, Float maxRating, String fromDate, String toDate) {
+        return bookRepository.findBooksByFilters(
+                genre,
+                minRating,
+                maxRating,
+                fromDate,
+                toDate);
+    }
+
+
 }

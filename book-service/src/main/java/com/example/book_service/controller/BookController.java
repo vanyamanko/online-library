@@ -53,4 +53,15 @@ public class BookController {
         return ResponseEntity.ok(bookService.getBookById(token, id));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<Book>> searchBooks(
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) Float minRating,
+            @RequestParam(required = false) Float maxRating,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate) {
+
+        return ResponseEntity.ok(bookService.findBooksByFilters(
+                genre, minRating, maxRating, fromDate, toDate));
+    }
 }

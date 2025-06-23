@@ -21,6 +21,8 @@ public interface BookService {
 
     Book getBookById(String token, String id);
 
+    List<Book> findBooksByFilters(String genre, Float minRating, Float maxRating, String fromDate, String toDate);
+
     enum PersonalizationCategory {
         FAVORITE, HISTORY
     }
