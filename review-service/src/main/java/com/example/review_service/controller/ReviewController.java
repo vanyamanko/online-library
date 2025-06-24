@@ -34,13 +34,13 @@ public class ReviewController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("like/{id}")
+    @PostMapping("/like/{id}")
     public ResponseEntity<Void> likeReview(@RequestHeader("Authorization") String token, @PathVariable String id) {
         reviewService.reviewReaction(token, id, ReviewReaction.ReactionType.LIKE);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("dislike/{id}")
+    @PostMapping("/dislike/{id}")
     public ResponseEntity<Void> dislikeReview(@RequestHeader("Authorization") String token, @PathVariable String id) {
         reviewService.reviewReaction(token, id, ReviewReaction.ReactionType.DISLIKE);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
