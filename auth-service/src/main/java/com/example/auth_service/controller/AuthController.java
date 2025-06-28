@@ -34,7 +34,7 @@ public class AuthController {
         return ResponseEntity.ok(authenticationService.validateToken(request.getToken()));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUserById(@RequestHeader("Authorization") String token, @PathVariable String id) {
         authenticationService.deleteUserById(token, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

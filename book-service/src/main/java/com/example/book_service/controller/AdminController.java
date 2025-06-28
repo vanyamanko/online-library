@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final AdminService adminService;
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBookById(
             @RequestHeader("Authorization") String token,
             @PathVariable String id
@@ -25,7 +25,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Book> createBook(
             @RequestHeader("Authorization") String token,
             @RequestBody @Valid CreateBookRequest createBookRequest
@@ -33,7 +33,7 @@ public class AdminController {
         return ResponseEntity.ok(adminService.createBook(token, createBookRequest));
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Book> updateBookById(
             @RequestHeader("Authorization") String token,
             @PathVariable String id,

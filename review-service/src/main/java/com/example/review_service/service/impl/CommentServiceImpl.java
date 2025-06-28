@@ -9,10 +9,10 @@ import com.example.review_service.repository.CommentRepository;
 import com.example.review_service.repository.ReviewRepository;
 import com.example.review_service.service.CommentService;
 import com.example.review_service.service.utility.CommentUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -27,6 +27,7 @@ public class CommentServiceImpl implements CommentService {
     private final AuthComponent authComponent;
 
     @Transactional
+    @Override
     public CommentDto.Response createComment(String token, CommentDto.Request createCommentRequest) {
 
         ValidationResponse response = authComponent.validateToken(token);
@@ -49,6 +50,8 @@ public class CommentServiceImpl implements CommentService {
         return CommentUtils.buildCommentDtoFromModel(comment);
     }
 
+    @Transactional
+    @Override
     public void deleteCommentById(String token, String id) {
         ValidationResponse response = authComponent.validateToken(token);
         Comment comment = commentRepository.findById(id)
@@ -63,6 +66,8 @@ public class CommentServiceImpl implements CommentService {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<CommentDto.Response> getAllByReviewId(String reviewId) {
         List<Comment> comments = commentRepository.findAllByReviewId(reviewId);
         return comments.stream()

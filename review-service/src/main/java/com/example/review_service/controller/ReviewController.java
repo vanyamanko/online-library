@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
     private final ReviewService reviewService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Review> createReview(
             @RequestHeader("Authorization") String token,
             @RequestBody @Valid CreateReviewRequest createReviewRequest
@@ -25,7 +25,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.createReview(token, createReviewRequest));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReviewById(
             @RequestHeader("Authorization") String token,
             @PathVariable String id

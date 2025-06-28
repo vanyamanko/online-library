@@ -18,7 +18,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<CommentDto.Response> createComment(
             @RequestHeader("Authorization") String token,
             @RequestBody @Valid CommentDto.Request createCommentRequest
@@ -26,7 +26,7 @@ public class CommentController {
         return ResponseEntity.ok(commentService.createComment(token, createCommentRequest));
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCommentById(
             @RequestHeader("Authorization") String token,
             @PathVariable String id

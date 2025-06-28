@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -32,6 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
 
+    @Override
     public AuthResponse signup(SignUpRequest request) {
         User user = User.builder()
                 .id("user_" + UUID.randomUUID())
@@ -53,6 +55,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Transactional
+    @Override
     public AuthResponse signin(SignInRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -75,6 +79,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Transactional
     @Override
     public AuthResponse refreshAccessToken(String refreshToken) {
         if (refreshToken == null || !refreshToken.startsWith("Bearer ")) {
@@ -169,6 +174,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    @Override
     public void deleteUserById(String token, String id) {
         ValidationResponse response = validateToken(token);
         if (!response.isSuccessfully() || (response.getRole() != Role.ADMIN && !Objects.equals(response.getUserId(), id))) {

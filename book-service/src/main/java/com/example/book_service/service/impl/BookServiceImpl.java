@@ -9,10 +9,10 @@ import com.example.book_service.repository.BookRepository;
 import com.example.book_service.repository.PersonalizationRepository;
 import com.example.book_service.service.BookService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -26,19 +26,26 @@ public class BookServiceImpl implements BookService {
     private final AuthComponent authComponent;
     private final PersonalizationRepository personalizationRepository;
 
+    @Transactional(readOnly = true)
+    @Override
     public List<Book> getAllBooks() {
         return bookRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<Book> getAllByAuthor(String author) {
         return bookRepository.findAllByAuthor(author);
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<Book> getAllByTitle(String title) {
         return bookRepository.findByTitle(title);
     }
 
     @Transactional
+    @Override
     public void updateRating(String id, Integer rating) {
         Optional<Book> optionalBook = bookRepository.findById(id);
         if (optionalBook.isPresent()) {
@@ -54,6 +61,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Transactional
+    @Override
     public void toggleFavorite(String token, String id) {
         ValidationResponse response = authComponent.validateToken(token);
         if (!response.isSuccessfully()) {
@@ -83,6 +91,8 @@ public class BookServiceImpl implements BookService {
         personalizationRepository.save(personalization);
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public Set<Book> getFavoriteOrHistory(String token, PersonalizationCategory p) {
         ValidationResponse response = authComponent.validateToken(token);
         if (!response.isSuccessfully()) {
@@ -102,6 +112,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Transactional
+    @Override
     public Book getBookById(String token, String id) {
 
         Book book = bookRepository.findById(id)
@@ -139,6 +150,8 @@ public class BookServiceImpl implements BookService {
         return book;
     }
 
+    @Transactional(readOnly = true)
+    @Override
     public List<Book> findBooksByFilters(String genre, Float minRating, Float maxRating, String fromDate, String toDate) {
         return bookRepository.findBooksByFilters(
                 genre,

@@ -10,11 +10,11 @@ import com.example.review_service.model.ReviewReaction;
 import com.example.review_service.repository.ReviewReactionRepository;
 import com.example.review_service.repository.ReviewRepository;
 import com.example.review_service.service.ReviewService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -33,6 +33,8 @@ public class ReviewServiceImpl implements ReviewService {
     private final AuthComponent authComponent;
     private final KafkaProduser kafkaProduser;
 
+    @Transactional
+    @Override
     public Review createReview(String token, CreateReviewRequest createReviewRequest) {
         ValidationResponse response = authComponent.validateToken(token);
         if (!response.isSuccessfully()) {
@@ -63,11 +65,13 @@ public class ReviewServiceImpl implements ReviewService {
         return reviewRepository.save(review);
     }
 
-    @Transactional
+    @Override
     public void deleteByBookId(String bookId) {
         reviewRepository.deleteByBookId(bookId);
     }
 
+    @Transactional
+    @Override
     public void deleteReviewById(String token, String id) {
         ValidationResponse response = authComponent.validateToken(token);
         Review review = reviewRepository.findById(id)
@@ -83,6 +87,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Transactional
+    @Override
     public void reviewReaction(String token, String id, ReviewReaction.ReactionType reactionType) {
         ValidationResponse response = authComponent.validateToken(token);
         if (!response.isSuccessfully()) {

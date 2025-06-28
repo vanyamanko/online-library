@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.UUID;
 
@@ -27,6 +28,7 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+    @Transactional
     @Override
     public void deleteBookById(String id, String token) {
         checkAdminAccess(token);
@@ -54,6 +56,7 @@ public class AdminServiceImpl implements AdminService {
         return bookRepository.save(book);
     }
 
+    @Transactional
     @Override
     public Book updateBookById(String token, String id, UpdateBookRequest updateBookRequest) {
         checkAdminAccess(token);
