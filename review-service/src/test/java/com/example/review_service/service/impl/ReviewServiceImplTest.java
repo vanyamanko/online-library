@@ -4,7 +4,7 @@ import com.example.review_service.component.AuthComponent;
 import com.example.review_service.dto.CreateReviewRequest;
 import com.example.review_service.dto.UpdateBookRatingRequest;
 import com.example.review_service.dto.ValidationResponse;
-import com.example.review_service.kafka.KafkaProduser;
+import com.example.review_service.kafka.KafkaProducer;
 import com.example.review_service.model.Review;
 import com.example.review_service.model.ReviewReaction;
 import com.example.review_service.repository.ReviewReactionRepository;
@@ -40,7 +40,7 @@ class ReviewServiceImplTest {
     private AuthComponent authComponent;
 
     @Mock
-    private KafkaProduser kafkaProduser;
+    private KafkaProducer kafkaProducer;
 
     @InjectMocks
     private ReviewServiceImpl reviewService;
@@ -102,7 +102,7 @@ class ReviewServiceImplTest {
         assertEquals(0, result.getDislikes());
 
         verify(reviewRepository).save(any(Review.class));
-        verify(kafkaProduser).sendToBookServiceAboutNewRating(any(UpdateBookRatingRequest.class));
+        verify(kafkaProducer).sendToBookServiceAboutNewRating(any(UpdateBookRatingRequest.class));
     }
 
     @Test
@@ -119,7 +119,7 @@ class ReviewServiceImplTest {
         assertEquals("Access denied", exception.getReason());
 
         verify(reviewRepository, never()).save(any());
-        verify(kafkaProduser, never()).sendToBookServiceAboutNewRating(any());
+        verify(kafkaProducer, never()).sendToBookServiceAboutNewRating(any());
     }
 
     @Test
@@ -133,7 +133,7 @@ class ReviewServiceImplTest {
         assertEquals("There is already a review", exception.getMessage());
 
         verify(reviewRepository, never()).save(any());
-        verify(kafkaProduser, never()).sendToBookServiceAboutNewRating(any());
+        verify(kafkaProducer, never()).sendToBookServiceAboutNewRating(any());
     }
 
 

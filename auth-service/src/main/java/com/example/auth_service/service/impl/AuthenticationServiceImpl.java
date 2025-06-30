@@ -41,7 +41,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
-                .joinedAt(Instant.now())
                 .lastActive(Instant.now())
                 .build();
 

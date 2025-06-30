@@ -1,5 +1,6 @@
 package com.example.book_service.controller;
 
+import com.example.book_service.dto.FilterBookRequest;
 import com.example.book_service.model.Book;
 import com.example.book_service.model.Personalization;
 import com.example.book_service.service.BookService;
@@ -54,14 +55,7 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(
-            @RequestParam(required = false) String genre,
-            @RequestParam(required = false) Float minRating,
-            @RequestParam(required = false) Float maxRating,
-            @RequestParam(required = false) String fromDate,
-            @RequestParam(required = false) String toDate) {
-
-        return ResponseEntity.ok(bookService.findBooksByFilters(
-                genre, minRating, maxRating, fromDate, toDate));
+    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) FilterBookRequest filterBookRequest) {
+        return ResponseEntity.ok(bookService.findBooksByFilters(filterBookRequest));
     }
 }

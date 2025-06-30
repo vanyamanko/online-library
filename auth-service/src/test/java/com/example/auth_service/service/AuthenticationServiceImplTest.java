@@ -57,7 +57,6 @@ class AuthenticationServiceImplTest {
                 .email("test@example.com")
                 .password("encoded")
                 .role(Role.USER)
-                .joinedAt(Instant.now())
                 .lastActive(Instant.now())
                 .build();
         when(passwordEncoder.encode(any())).thenReturn("encoded");

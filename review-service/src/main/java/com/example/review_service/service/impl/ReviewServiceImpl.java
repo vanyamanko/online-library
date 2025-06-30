@@ -4,7 +4,7 @@ import com.example.review_service.component.AuthComponent;
 import com.example.review_service.dto.CreateReviewRequest;
 import com.example.review_service.dto.UpdateBookRatingRequest;
 import com.example.review_service.dto.ValidationResponse;
-import com.example.review_service.kafka.KafkaProduser;
+import com.example.review_service.kafka.KafkaProducer;
 import com.example.review_service.model.Review;
 import com.example.review_service.model.ReviewReaction;
 import com.example.review_service.repository.ReviewReactionRepository;
@@ -31,7 +31,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewReactionRepository reviewReactionRepository;
     private final AuthComponent authComponent;
-    private final KafkaProduser kafkaProduser;
+    private final KafkaProducer kafkaProducer;
 
     @Transactional
     @Override
@@ -60,7 +60,7 @@ public class ReviewServiceImpl implements ReviewService {
                 .rating(review.getRating())
                 .build();
 
-        kafkaProduser.sendToBookServiceAboutNewRating(updateBookRatingRequest);
+        kafkaProducer.sendToBookServiceAboutNewRating(updateBookRatingRequest);
 
         return reviewRepository.save(review);
     }

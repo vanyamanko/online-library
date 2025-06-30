@@ -1,8 +1,9 @@
 package com.example.book_service.service.impl;
 
 import com.example.book_service.component.AuthComponent;
+import com.example.book_service.dto.FilterBookRequest;
 import com.example.book_service.dto.ValidationResponse;
-import com.example.book_service.kafka.KafkaProduser;
+import com.example.book_service.kafka.KafkaProducer;
 import com.example.book_service.model.Book;
 import com.example.book_service.model.Personalization;
 import com.example.book_service.repository.BookRepository;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
-    private final KafkaProduser kafkaProduser;
+    private final KafkaProducer kafkaProducer;
     private final AuthComponent authComponent;
     private final PersonalizationRepository personalizationRepository;
 
@@ -56,7 +57,7 @@ public class BookServiceImpl implements BookService {
             book.setReviewsCount(oldReviewsCount + 1);
             bookRepository.save(book);
         } else {
-            kafkaProduser.deleteReviewByBookId(id);
+            kafkaProducer.deleteReviewByBookId(id);
         }
     }
 
@@ -152,14 +153,12 @@ public class BookServiceImpl implements BookService {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Book> findBooksByFilters(String genre, Float minRating, Float maxRating, String fromDate, String toDate) {
+    public List<Book> findBooksByFilters(FilterBookRequest filterBookRequest) {
         return bookRepository.findBooksByFilters(
-                genre,
-                minRating,
-                maxRating,
-                fromDate,
-                toDate);
+                filterBookRequest.genre(),
+                filterBookRequest.minRating(),
+                filterBookRequest.maxRating(),
+                filterBookRequest.fromDate(),
+                filterBookRequest.toDate());
     }
-
-
 }

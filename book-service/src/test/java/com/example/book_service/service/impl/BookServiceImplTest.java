@@ -1,8 +1,9 @@
 package com.example.book_service.service.impl;
 
 import com.example.book_service.component.AuthComponent;
+import com.example.book_service.dto.FilterBookRequest;
 import com.example.book_service.dto.ValidationResponse;
-import com.example.book_service.kafka.KafkaProduser;
+import com.example.book_service.kafka.KafkaProducer;
 import com.example.book_service.model.Book;
 import com.example.book_service.model.Personalization;
 import com.example.book_service.repository.BookRepository;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +26,7 @@ class BookServiceImplTest {
     @Mock
     private BookRepository bookRepository;
     @Mock
-    private KafkaProduser kafkaProduser;
+    private KafkaProducer kafkaProducer;
     @Mock
     private AuthComponent authComponent;
     @Mock
@@ -72,7 +74,7 @@ class BookServiceImplTest {
     void updateRating_bookNotFound_callsKafka() {
         when(bookRepository.findById("id")).thenReturn(Optional.empty());
         bookService.updateRating("id", 5);
-        verify(kafkaProduser).deleteReviewByBookId("id");
+        verify(kafkaProducer).deleteReviewByBookId("id");
     }
 
     @Test
@@ -131,9 +133,41 @@ class BookServiceImplTest {
     }
 
     @Test
-    void findBooksByFilters_returnsList() {
-        List<Book> books = List.of(new Book());
-        when(bookRepository.findBooksByFilters(any(), any(), any(), any(), any())).thenReturn(books);
-        assertEquals(books, bookService.findBooksByFilters(null, null, null, null, null));
+    void findBooksByFilters_returnsFilteredBooks() {
+        FilterBookRequest filters = FilterBookRequest.builder()
+                .genre("Fantasy")
+                .minRating(4.0f)
+                .maxRating(5.0f)
+                .fromDate(String.valueOf(LocalDate.of(2020, 1, 1)))
+                .toDate(String.valueOf(LocalDate.of(2023, 12, 31)))
+                .build();
+
+        List<Book> expectedBooks = List.of(
+                Book.builder()
+                        .id("book_123")
+                        .title("The Hobbit")
+                        .genres(Set.of("Fantasy"))
+                        .rating(4.5f)
+                        .publishedDate(LocalDate.of(2021, 5, 15).toString())
+                        .build()
+        );
+
+        when(bookRepository.findBooksByFilters(
+                filters.genre(),
+                filters.minRating(),
+                filters.maxRating(),
+                filters.fromDate(),
+                filters.toDate()
+        )).thenReturn(expectedBooks);
+
+        List<Book> actualBooks = bookService.findBooksByFilters(filters);
+        assertEquals(expectedBooks, actualBooks);
+        verify(bookRepository).findBooksByFilters(
+                filters.genre(),
+                filters.minRating(),
+                filters.maxRating(),
+                filters.fromDate(),
+                filters.toDate()
+        );
     }
 } 

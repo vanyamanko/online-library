@@ -86,8 +86,8 @@ class BookControllerTest {
     @Test
     void searchBooks_returnsList() {
         List<Book> books = List.of(new Book());
-        when(bookService.findBooksByFilters(any(), any(), any(), any(), any())).thenReturn(books);
-        ResponseEntity<List<Book>> response = bookController.searchBooks(null, null, null, null, null);
+        when(bookService.findBooksByFilters(any())).thenReturn(books);
+        ResponseEntity<List<Book>> response = bookController.searchBooks( null);
         assertEquals(books, response.getBody());
     }
 } 

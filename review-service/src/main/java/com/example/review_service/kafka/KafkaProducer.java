@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class KafkaProduser {
+public class KafkaProducer {
     private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void sendToBookServiceAboutNewRating(UpdateBookRatingRequest updateBookRatingRequest) {

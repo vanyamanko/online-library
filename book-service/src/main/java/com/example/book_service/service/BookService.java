@@ -1,5 +1,6 @@
 package com.example.book_service.service;
 
+import com.example.book_service.dto.FilterBookRequest;
 import com.example.book_service.model.Book;
 import com.example.book_service.model.Personalization;
 
@@ -21,7 +22,7 @@ public interface BookService {
 
     Book getBookById(String token, String id);
 
-    List<Book> findBooksByFilters(String genre, Float minRating, Float maxRating, String fromDate, String toDate);
+    List<Book> findBooksByFilters(FilterBookRequest filterBookRequest);
 
     enum PersonalizationCategory {
         FAVORITE, HISTORY
