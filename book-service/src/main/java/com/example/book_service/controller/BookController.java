@@ -2,7 +2,6 @@ package com.example.book_service.controller;
 
 import com.example.book_service.dto.FilterBookRequest;
 import com.example.book_service.model.Book;
-import com.example.book_service.model.Personalization;
 import com.example.book_service.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -55,7 +54,7 @@ public class BookController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Book>> searchBooks(@RequestParam(required = false) FilterBookRequest filterBookRequest) {
+    public ResponseEntity<List<Book>> searchBooks(@ModelAttribute FilterBookRequest filterBookRequest) {
         return ResponseEntity.ok(bookService.findBooksByFilters(filterBookRequest));
     }
 }
